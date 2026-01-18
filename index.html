@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بقالة السفير | طلبات مباشرة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #1a531b; --secondary: #2e7d32; --bg: #f4f7f4; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg); color: #333; line-height: 1.6; padding: 20px; }
+        .order-box {
+            max-width: 500px; margin: 40px auto; background: #fff;
+            padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-top: 6px solid var(--secondary);
+        }
+        h2 { text-align: center; color: var(--primary); margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        .form-control {
+            width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px;
+            font-size: 16px; transition: 0.3s;
+        }
+        .form-control:focus { outline: none; border-color: var(--secondary); background: #f9fff9; }
+        .btn-send {
+            width: 100%; background: var(--secondary); color: white; padding: 15px;
+            border: none; border-radius: 10px; font-size: 18px; font-weight: bold;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-send:hover { background: var(--primary); transform: translateY(-2px); transition: 0.3s; }
+    </style>
+</head>
+<body>
+
+    <div class="order-box">
+        <h2><i class="fas fa-shopping-basket"></i> طلب جديد - السفير</h2>
+        <form id="telegramForm">
+            <div class="form-group">
+                <label>ماذا تريد أن تطلب؟</label>
+                <textarea id="orderDetails" class="form-control" rows="5" placeholder="اكتب طلباتك هنا..." required></textarea>
+            </div>
+            <div class="form-group">
+                <label>رقم جوالك:</label>
+                <input type="tel" id="userPhone" class="form-control" placeholder="05xxxxxxxx" required>
+            </div>
+            <div class="form-group">
+                <label>العنوان:</label>
+                <input type="text" id="address" class="form-control" placeholder="الحي - الشارع">
+            </div>
+            <button type="submit" class="btn-send" id="submitBtn">
+                <i class="fab fa-telegram-plane"></i>
+                <span>إرسال الطلب الآن</span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // --- بيانات البوت الخاصة بك ---
+        const BOT_TOKEN = "8362347583:AAHIHgrPy2wH6oiwNgQ1loMT39gOAVczqhk"; 
+        const CHAT_ID = "ضع_هنا_رقم_الايدي_الخاص_بك"; // استخرجه من بوت @userinfobot
+
+        document.getElementById('telegramForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const details = document.getElementById('orderDetails').value;
+            const phone = document.getElementById('userPhone').value;
+            const addr = document.getElementById('address').value;
+
+            btn.disabled = true;
+            btn.querySelector('span').innerText = "جاري الإرسال...";
+
+            const message = `🛒 *طلب جديد من بقالة السفير*\n\n` +
+                            `📝 *الطلبات:* ${details}\n` +
+                            `📞 *الجوال:* ${phone}\n` +
+                            `📍 *العنوان:* ${addr ? addr : 'غير محدد'}`;
+
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: message,
+                    parse_mode: 'Markdown'
+                })
+            })
+            .then(res => {
+                if(res.ok) {
+                    alert("تم إرسال طلبك بنجاح ✅");
+                    document.getElementById('telegramForm').reset();
+                } else {
+                    alert("خطأ: تأكد من وضع Chat ID الصحيح وتشغيل البوت أولاً.");
+                }
+            })
+            .catch(() => alert("فشل الإرسال، تحقق من الإنترنت."))
+            .finally(() => {
+                btn.disabled = false;
+                btn.querySelector('span').innerText = "إرسال الطلب الآن";
+            });
+        });
+    </script>
+</body>
+</html>
